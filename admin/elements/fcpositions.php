@@ -23,6 +23,8 @@ jimport('cms.html.html');      // JHtml
 jimport('cms.html.select');    // \Joomla\CMS\HTML\Helpers\Select
 jimport('joomla.form.field');  // \Joomla\CMS\Form\FormField
 
+use Joomla\Database\DatabaseInterface;
+
 //jimport('joomla.form.helper'); // \Joomla\CMS\Form\FormHelper
 //\Joomla\CMS\Form\FormHelper::loadFieldClass('...');   // \Joomla\CMS\Form\FormField...
 
@@ -44,8 +46,8 @@ class JFormFieldFcpositions extends \Joomla\CMS\Form\FormField
 	
 	protected function getInput()
 	{
-		$doc = \Joomla\CMS\Factory::getDocument();
-		$db  = \Joomla\CMS\Factory::getDbo();
+		$doc = \Joomla\CMS\Factory::getApplication()->getDocument();;
+		$db  = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 
 		$node = & $this->element;
 		$attributes = get_object_vars($node->attributes());

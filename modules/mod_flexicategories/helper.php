@@ -9,6 +9,8 @@
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
+
 /**
  * Helper for mod_flexicategories
  *
@@ -33,7 +35,7 @@ abstract class ModFlexiCategoriesHelper
 		$options               = array();
 		$options['countItems'] = $params->get('numitems', 0);
 
-		$categories = \Joomla\CMS\Categories\Categories::getInstance('Content', $options);
+		$categories =  Factory::getApplication()->bootComponent('Content')->getCategory($options, '');
 		$category   = $categories->get($params->get('parent', 'root'));
 
 		if ($category != null)

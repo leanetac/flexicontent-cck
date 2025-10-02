@@ -8,7 +8,7 @@
  * @copyright       Copyright © 2018, FLEXIcontent team, All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
-
+use Joomla\Database\DatabaseInterface;
 use Joomla\Component\Content\Site\Helper\RouteHelper as ContentRouteHelper;
 
 defined('_JEXEC') or die;
@@ -50,7 +50,7 @@ abstract class JHtmlFcitems extends JHtmlFcbase
 		return !$allow_jview
 			? FlexicontentHelperRoute::getItemRoute($row->id . ':' . $row->alias, $row->categoryslug, 0, $row)
 			: (version_compare(JVERSION, '4.0', 'lt')
-				? ContentHelperRoute::getArticleRoute($row->id . ':' . $row->alias, $row->catid, $row->language)
+				? \Joomla\Component\Content\Site\Helper\RouteHelper::getArticleRoute($row->id . ':' . $row->alias, $row->catid, $row->language)
 				: ContentRouteHelper::getArticleRoute($row->id . ':' . $row->alias, $row->catid, $row->language)
 			);
 	}
@@ -72,10 +72,10 @@ abstract class JHtmlFcitems extends JHtmlFcbase
 
 		if ($tz === null)
 		{
-			$nullDate = \Joomla\CMS\Factory::getDbo()->getNullDate();
+			$nullDate = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class)->getNullDate();
 			$nowDate = \Joomla\CMS\Factory::getDate()->toUnix();
 
-			$tz = \Joomla\CMS\Factory::getUser()->getTimezone();
+			$tz = \Joomla\CMS\Factory::getApplication()->getIdentity()->getTimezone();
 		}
 
 		// Check publication START/FINISH dates on if item has state: publised / in-progress / archived

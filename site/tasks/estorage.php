@@ -1,5 +1,6 @@
 <?php
 use Joomla\String\StringHelper;
+use Joomla\Database\DatabaseInterface;
 
 /**
  * J4 CLI
@@ -7,7 +8,6 @@ use Joomla\String\StringHelper;
 use Joomla\CMS\Application\CMSApplication;      // This is for web request, does not work with CLI (command line interface)
 use Joomla\CMS\Application\CliApplication;      // This is abstract class, we cannot use it
 use Joomla\CMS\Application\ConsoleApplication;  // ... we can use this, it is for CLI and it is non-abstract
-
 
 /**
  * Check we are running from command line interface (CLI)
@@ -135,7 +135,7 @@ class FlexicontentCronTasks
 			array('com_flexicontent.estorage')  // category of logged messages
 		);
 
-		$db  = \Joomla\CMS\Factory::getDbo();
+		$db  = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 
 
 		/**
@@ -360,7 +360,7 @@ class FlexicontentCronTasks
 				? $file->source_path
 				:	($file->secure ? COM_FLEXICONTENT_FILEPATH : COM_FLEXICONTENT_MEDIAPATH);  // JPATH_ROOT . DS . <media_path | file_path>
 
-			$source_file  = \Joomla\CMS\Filesystem\Path::clean($file->source_path . DS . $file->filename);
+			$source_file  = \Joomla\Filesystem\Path::clean($file->source_path . DS . $file->filename);
 			$dest_file    = basename($source_file);
 
 			/*$contents_on_server = ftp_nlist($ftpConnID[$field_id], $efs_ftp_path); //Returns an array of filenames from the specified directory on success or FALSE on error. 

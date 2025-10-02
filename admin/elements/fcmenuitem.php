@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  */
 
-defined('JPATH_PLATFORM') or die;
+defined('_JEXEC') or die;
 
 jimport('cms.html.html');      // JHtml
 jimport('cms.html.select');    // \Joomla\CMS\HTML\Helpers\Select
@@ -24,6 +24,7 @@ jimport('joomla.form.field');  // \Joomla\CMS\Form\FormField
 
 jimport('joomla.form.helper'); // \Joomla\CMS\Form\FormHelper
 \Joomla\CMS\Form\FormHelper::loadFieldClass('groupedlist');   // \Joomla\CMS\Form\Field\GroupedlistField
+use Joomla\Database\DatabaseInterface;
 
 // Import the com_menus helper.
 require_once realpath(JPATH_ADMINISTRATOR . '/components/com_menus/helpers/menus.php');
@@ -291,7 +292,7 @@ class JFormFieldFcMenuitem extends JFormFieldGroupedList
 
 	public static function getMenuLinks($menuType = null, $parentId = 0, $mode = 0, $published = array(), $languages = array())
 	{
-		$db = \Joomla\CMS\Factory::getDbo();
+		$db = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 		$query = $db->getQuery(true)
 			->select('DISTINCT a.id AS value, 
 				  a.title AS text, 

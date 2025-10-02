@@ -10,6 +10,8 @@
 // No direct access.
 defined('_JEXEC') or die;
 
+use Joomla\Database\DatabaseInterface;
+
 /**
  * Users component helper.
  *
@@ -84,7 +86,7 @@ class UsersHelper
 	{
 		if (empty(self::$actions))
 		{
-			$user = \Joomla\CMS\Factory::getUser();
+			$user = \Joomla\CMS\Factory::getApplication()->getIdentity();
 			self::$actions = new \Joomla\CMS\Object\CMSObject;
 
 			$actions = \Joomla\CMS\Access\Access::getActionsFromFile(
@@ -144,7 +146,7 @@ class UsersHelper
 	 */
 	static function getGroups()
 	{
-		$db = \Joomla\CMS\Factory::getDbo();
+		$db = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 		$db->setQuery(
 			'SELECT a.id AS value, a.title AS text, COUNT(DISTINCT b.id) AS level' .
 			' FROM #__usergroups AS a' .

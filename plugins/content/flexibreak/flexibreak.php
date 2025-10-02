@@ -148,7 +148,7 @@ class plgContentFlexiBreak extends \Joomla\CMS\Plugin\CMSPlugin
 
 
 		// Plugin base folder
-		$document = \Joomla\CMS\Factory::getDocument();
+		$document = \Joomla\CMS\Factory::getApplication()->getDocument();;
 		$plgbase  = \Joomla\CMS\Uri\Uri::root(true).'/plugins/'.$this->_type.'/'.$this->_name.'/'.$this->_name.'/'.$this->_name;
 
 		// Display configuration
@@ -383,7 +383,7 @@ class plgContentFlexiBreak extends \Joomla\CMS\Plugin\CMSPlugin
 
 		$string = html_entity_decode($string, ENT_QUOTES, 'UTF-8');
 
-		//$table = new flexicontent_items(\Joomla\CMS\Factory::getDbo());
+		//$table = new flexicontent_items(\Factory::getContainer()->get(DatabaseInterface::class));
 		$table = \Joomla\CMS\Table\Table::getInstance($type = 'flexicontent_items', $prefix = '', $config = array());
 
 		// Create ASCII (transliterate) hashtags

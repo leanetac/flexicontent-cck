@@ -21,6 +21,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 use Joomla\String\StringHelper;
 use Joomla\Utilities\ArrayHelper;
+use Joomla\Database\DatabaseInterface;
 
 jimport('cms.plugin.plugin');
 
@@ -110,8 +111,8 @@ class plgSearchFlexiadvsearch extends \Joomla\CMS\Plugin\CMSPlugin
 		$option = $jinput->getCmd('option', '');
 		$view   = $jinput->getCmd('view', '');
 
-		$db       = \Joomla\CMS\Factory::getDbo();
-		$user     = \Joomla\CMS\Factory::getUser();
+		$db       = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
+		$user     = \Joomla\CMS\Factory::getApplication()->getIdentity();
 
 		$app->setUserState('fc_view_total_'.$view, 0);
 		$app->setUserState('fc_view_limit_max_'.$view, 0);
@@ -886,7 +887,7 @@ class plgSearchFlexiadvsearch extends \Joomla\CMS\Plugin\CMSPlugin
 				// If joomla article view is allowed allowed and then search view may optional create Joomla article links
 				if( $typeData[$item->type_id]->params->get('allow_jview', 0) == 1 && $typeData[$item->type_id]->params->get('search_jlinks', 1) )
 				{
-					$item->href = \Joomla\CMS\Router\Route::_(ContentHelperRoute::getArticleRoute($item->slug, $item->categoryslug, $item->language));
+					$item->href = \Joomla\CMS\Router\Route::_(\Joomla\Component\Content\Site\Helper\RouteHelper::getArticleRoute($item->slug, $item->categoryslug, $item->language));
 				}
 				else
 				{
@@ -910,7 +911,7 @@ class plgSearchFlexiadvsearch extends \Joomla\CMS\Plugin\CMSPlugin
 	{
 		$app    = \Joomla\CMS\Factory::getApplication();
 		$option = $app->input->getCmd('option', '');
-		$db     = \Joomla\CMS\Factory::getDbo();
+		$db     = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 
 		static $text_search = null;
 
@@ -958,7 +959,7 @@ class plgSearchFlexiadvsearch extends \Joomla\CMS\Plugin\CMSPlugin
 			: 'flexicontent_advsearch_index';
 
 		// Try to add space between words for current language using a dictionary
-		$lang_handler = FlexicontentFields::getLangHandler(\Joomla\CMS\Factory::getLanguage()->getTag());
+		$lang_handler = FlexicontentFields::getLangHandler(\Joomla\CMS\Factory::getApplication()->getLanguage()->getTag());
 
 		if ($lang_handler)
 		{
@@ -999,7 +1000,7 @@ class plgSearchFlexiadvsearch extends \Joomla\CMS\Plugin\CMSPlugin
 			 */
 			if ($filter_word_like_any
 				&& in_array(flexicontent_html::getUserCurrentLang(), array('zh', 'jp', 'ja', 'th'))
-				&& ! FlexicontentFields::getLangHandler(\Joomla\CMS\Factory::getLanguage()->getTag(), $_hasHandlerOnly = true)
+				&& ! FlexicontentFields::getLangHandler(\Joomla\CMS\Factory::getApplication()->getLanguage()->getTag(), $_hasHandlerOnly = true)
 			)
 			{
 				$_index_match = ' LOWER ('.$ts.'.search_index) LIKE '.$db->Quote( '%'.$escaped_text.'%', false );
@@ -1062,7 +1063,7 @@ class plgSearchFlexiadvsearch extends \Joomla\CMS\Plugin\CMSPlugin
 				case 'all':
 					$nospace_languages = array('th-TH');
 
-					$is_nospace_language = in_array(\Joomla\CMS\Factory::getLanguage()->getTag(), $nospace_languages);
+					$is_nospace_language = in_array(\Joomla\CMS\Factory::getApplication()->getLanguage()->getTag(), $nospace_languages);
 
 					// TODO check if not using the * for THAI is appropriate & needed
 					$newtext = $is_nospace_language

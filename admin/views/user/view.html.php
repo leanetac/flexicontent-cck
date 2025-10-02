@@ -13,6 +13,8 @@ defined('_JEXEC') or die('Restricted access');
 
 use Joomla\String\StringHelper;
 use Joomla\Utilities\ArrayHelper;
+use Joomla\CMS\Toolbar\ToolbarFactoryInterface;
+use Joomla\Database\DatabaseInterface;
 
 JLoader::register('FlexicontentViewBaseRecord', JPATH_ADMINISTRATOR . '/components/com_flexicontent/helpers/base/view_record.php');
 
@@ -34,9 +36,9 @@ class FlexicontentViewUser extends FlexicontentViewBaseRecord
 
 		$app        = \Joomla\CMS\Factory::getApplication();
 		$jinput     = $app->input;
-		$document   = \Joomla\CMS\Factory::getDocument();
-		$user       = \Joomla\CMS\Factory::getUser();
-		$db         = \Joomla\CMS\Factory::getDbo();
+		$document   = \Joomla\CMS\Factory::getApplication()->getDocument();
+		$user       = \Joomla\CMS\Factory::getApplication()->getIdentity();
+		$db         = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 		$cparams    = \Joomla\CMS\Component\ComponentHelper::getParams('com_flexicontent');
 		$perms      = FlexicontentHelperPerm::getPerm();
 
@@ -89,16 +91,16 @@ class FlexicontentViewUser extends FlexicontentViewBaseRecord
 		// Add css to document
 		if ($isAdmin)
 		{
-			!\Joomla\CMS\Factory::getLanguage()->isRtl()
+			!\Joomla\CMS\Factory::getApplication()->getLanguage()->isRtl()
 				? $document->addStyleSheet(\Joomla\CMS\Uri\Uri::base(true).'/components/com_flexicontent/assets/css/flexicontentbackend.css', array('version' => FLEXI_VHASH))
 				: $document->addStyleSheet(\Joomla\CMS\Uri\Uri::base(true).'/components/com_flexicontent/assets/css/flexicontentbackend_rtl.css', array('version' => FLEXI_VHASH));
-			!\Joomla\CMS\Factory::getLanguage()->isRtl()
+			!\Joomla\CMS\Factory::getApplication()->getLanguage()->isRtl()
 				? $document->addStyleSheet(\Joomla\CMS\Uri\Uri::base(true).'/components/com_flexicontent/assets/css/' . (FLEXI_J40GE ? 'j4x.css' : 'j3x.css'), array('version' => FLEXI_VHASH))
 				: $document->addStyleSheet(\Joomla\CMS\Uri\Uri::base(true).'/components/com_flexicontent/assets/css/' . (FLEXI_J40GE ? 'j4x_rtl.css' : 'j3x_rtl.css'), array('version' => FLEXI_VHASH));
 		}
 		else
 		{
-			!\Joomla\CMS\Factory::getLanguage()->isRtl()
+			!\Joomla\CMS\Factory::getApplication()->getLanguage()->isRtl()
 				? $document->addStyleSheet(\Joomla\CMS\Uri\Uri::base(true).'/components/com_flexicontent/assets/css/flexicontent.css', array('version' => FLEXI_VHASH))
 				: $document->addStyleSheet(\Joomla\CMS\Uri\Uri::base(true).'/components/com_flexicontent/assets/css/flexicontent_rtl.css', array('version' => FLEXI_VHASH));
 		}
@@ -123,7 +125,7 @@ class FlexicontentViewUser extends FlexicontentViewBaseRecord
 		 * Create the toolbar
 		 */
 
-		$toolbar = \Joomla\CMS\Toolbar\Toolbar::getInstance('toolbar');
+		$toolbar = \Joomla\CMS\Factory::getContainer()->get(ToolbarFactoryInterface::class)->createToolbar('toolbar');
 
 		// Creation flag used to decide if adding save and new / save as copy buttons are allowed
 		$cancreate = false;  // We will not create new users in our backend
@@ -241,7 +243,7 @@ class FlexicontentViewUser extends FlexicontentViewBaseRecord
 		// NOTE: this is one step for J1.5 via a JParameter object, but in J1.6+ the use of XML file
 		// in JParameter is deprecated, instead we will \Joomla\CMS\Form\Form to load XML description and thus be able to render it
 
-		$auth_xml = JPATH_COMPONENT.DS.'models'.DS.'forms'.DS.'author.xml';
+		$auth_xml = JPATH_BASE . DS . 'components' . DS . 'com_flexicontent' .DS.'models'.DS.'forms'.DS.'author.xml';
 		$params_authorbasic = new \Joomla\Registry\Registry($flexiauthor_extdata->author_basicparams);
 		//echo "<pre>"; print_r($params_authorbasic); echo "</pre>"; exit;
 
@@ -268,7 +270,7 @@ class FlexicontentViewUser extends FlexicontentViewBaseRecord
 		// NOTE: this is one step for J1.5 via a JParameter object, but in J1.6+ the use of XML file
 		// in JParameter is deprecated, instead we will \Joomla\CMS\Form\Form to load XML description and thus be able to render it
 
-		$cat_xml = JPATH_COMPONENT.DS.'models'.DS.'forms'.DS.'category.xml';
+		$cat_xml = JPATH_BASE . DS . 'components' . DS . 'com_flexicontent'.DS.'models'.DS.'forms'.DS.'category.xml';
 		$params_authorcat = new \Joomla\Registry\Registry($flexiauthor_extdata->author_catparams);
 		//echo "<pre>"; print_r($params_authorcat); echo "</pre>"; exit;
 

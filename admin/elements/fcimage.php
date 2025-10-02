@@ -19,6 +19,8 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
 
+use Joomla\Database\DatabaseInterface;
+
 jimport('cms.html.html');      // JHtml
 jimport('cms.html.select');    // \Joomla\CMS\HTML\Helpers\Select
 jimport('joomla.form.field');  // \Joomla\CMS\Form\FormField
@@ -44,7 +46,7 @@ jimport('joomla.form.helper'); // \Joomla\CMS\Form\FormHelper
 
 	public function getGroups()
 	{
-		$db = \Joomla\CMS\Factory::getDbo();
+		$db = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 		$node = & $this->element;
 		$attributes = get_object_vars($node->attributes());
 		$attributes = $attributes['@attributes'];

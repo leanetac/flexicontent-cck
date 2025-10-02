@@ -21,10 +21,10 @@ HTMLHelper::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_flexicontent/h
 global $globalcats;
 $app      = Factory::getApplication();
 $jinput   = $app->input;
-$config   = Factory::getConfig();
-$user     = Factory::getUser();
-$session  = Factory::getSession();
-$document = Factory::getDocument();
+$config   = Factory::getApplication()->getConfig();
+$user     = Factory::getApplication()->getIdentity();
+$session  = Factory::getApplication()->getSession();
+$document = Factory::getApplication()->getDocument();
 $cparams  = ComponentHelper::getParams('com_flexicontent');
 $ctrl     = 'fields.';
 $hlpname  = 'fcfields';
@@ -130,7 +130,7 @@ $ord_col = !$this->filter_type
 	: 'typeordering';
 $ord_grp = 1;
 
-//Factory::getLanguage()->load('plg_flexicontent_fields_text', JPATH_ADMINISTRATOR);
+//Factory::getApplication()->getLanguage()->load('plg_flexicontent_fields_text', JPATH_ADMINISTRATOR);
 $inputmask_txts = array(
 	//'' => 'FLEXI_NO_MASK',
 	'__regex__' => 'REGULAR EXPRESSION',
@@ -171,7 +171,7 @@ $inputmask_txts = array(
 	'mm/yyyy' => 'Month/Year (mm/yyyy)',
 );
 
-Factory::getLanguage()->load('plg_flexicontent_fields_image', JPATH_ADMINISTRATOR);
+Factory::getApplication()->getLanguage()->load('plg_flexicontent_fields_image', JPATH_ADMINISTRATOR);
 $image_source_txts = array(
 	'-2' => 'Joomla media manager',
 	'-1' => 'Joomla article images: (intro + full)',
@@ -726,7 +726,7 @@ if ($js)
 							$custom_path  = '<span class="' . $this->tooltip_class . '" title="Custom file path"><span class="icon icon-folder-open" style="font-size: 1.2em;"></span></span> ';
 							$custom_path .= $jmedia_topdir !== 'images' || $jmedia_subpath
 								? $jmedia_topdir .'/'. $jmedia_subpath
-								: '('.JText::_('JDEFAULT') . '): ' . $jmedia_topdir;
+								: '('.Text::_('JDEFAULT') . '): ' . $jmedia_topdir;
 							$custom_path  = '<div style="color: #777;">'. $custom_path . '</div>';
 
 							$jmedia_filetypes  = $row->parameters->get('jmedia_filetypes', array('folders', 'images', 'docs', 'videos', 'audios'));
@@ -907,7 +907,7 @@ if ($js)
 </div><!-- #flexicontent end -->
 
 <?php
-Factory::getDocument()->addScriptDeclaration('
+Factory::getApplication()->getDocument()->addScriptDeclaration('
 	function fc_edit_fcfield_modal_load( container )
 	{
 		if ( container.find("iframe").get(0).contentWindow.location.href.indexOf("view=fields") != -1 )

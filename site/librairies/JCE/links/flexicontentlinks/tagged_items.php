@@ -14,6 +14,7 @@
  * Based on "joomlalinks" found in JCE's core distribution, and flexicontentlinks by Emmanuel Dannan and Ryan Demmer
  */
 defined('_WF_EXT') or die('RESTRICTED');
+use Joomla\Database\DatabaseInterface;
 
 class FlexicontentlinksTagged_items extends \Joomla\CMS\Object\CMSObject {
 
@@ -86,7 +87,7 @@ class FlexicontentlinksTagged_items extends \Joomla\CMS\Object\CMSObject {
 
 		if ($layout && $layout!='tags') return array();
 
-		$db = \Joomla\CMS\Factory::getDbo();
+		$db = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 
 		// Add tagged items
 		$query	= $db->getQuery(true);

@@ -17,7 +17,8 @@
  */
 
 defined( '_JEXEC' ) or die( 'Restricted access' );
-
+use Joomla\Database\DatabaseInterface;
+use Joomla\CMS\Cache\CacheControllerFactoryInterface;
 
 // Joomla version variables
 if (!defined('FLEXI_J16GE') || !defined('FLEXI_J30GE'))
@@ -77,8 +78,8 @@ class com_flexicontentInstallerScript
 		if (version_compare(PHP_VERSION, $PHP_VERSION_NEEDED, '<'))
 		{
 			// load english language file for 'com_flexicontent' component then override with current language file
-			\Joomla\CMS\Factory::getLanguage()->load('com_flexicontent', JPATH_ADMINISTRATOR, 'en-GB', true);
-			\Joomla\CMS\Factory::getLanguage()->load('com_flexicontent', JPATH_ADMINISTRATOR, null, true);
+			\Joomla\CMS\Factory::getApplication()->getLanguage()->load('com_flexicontent', JPATH_ADMINISTRATOR, 'en-GB', true);
+			\Joomla\CMS\Factory::getApplication()->getLanguage()->load('com_flexicontent', JPATH_ADMINISTRATOR, null, true);
 
 			\Joomla\CMS\Factory::getApplication()->enqueueMessage(\Joomla\CMS\Language\Text::sprintf('FLEXI_UPGRADE_PHP_VERSION_GE', $PHP_VERSION_NEEDED), 'warning');
 			return false;
@@ -244,7 +245,7 @@ class com_flexicontentInstallerScript
 		$extensions = array();
 
 		// clear a cache
-		$cache = \Joomla\CMS\Factory::getCache();
+		$cache = \Joomla\CMS\Factory::getContainer()->get(CacheControllerFactoryInterface::class)->createCacheController('callback', ['defaultgroup' => '_system']);
 		$cache->clean( '_system' );  // This might be necessary as installing-uninstalling in same session may result in wrong extension ids, etc
 		$cache->clean( 'com_flexicontent' );
 		$cache->clean( 'com_flexicontent_tmpl' );
@@ -253,14 +254,14 @@ class com_flexicontentInstallerScript
 		$cache->clean( 'com_flexicontent_filters' );
 
 		// reseting post installation session variables
-		$session  = \Joomla\CMS\Factory::getSession();
+		$session  = \Joomla\CMS\Factory::getApplication()->getSession();;
 		$session->set('flexicontent.postinstall', false);
 		$session->set('flexicontent.allplgpublish', false);
 		$session->set('flexicontent.allplgpublish', false);
 		$session->set('unbounded_noext', false, 'flexicontent');
 		$session->set('unbounded_badcat', false, 'flexicontent');
 
-		$db = \Joomla\CMS\Factory::getDbo();
+		$db = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 
 		// Parse XML file to identify additional extensions,
 		// This code part (for installing additional extensions) originates from Zoo J1.5 Component:
@@ -298,6 +299,7 @@ class com_flexicontentInstallerScript
 			$jinstaller = & $extensions[$i]['installer'];    // new \Joomla\CMS\Installer\Installer();
 
 			// J1.6+ installer requires that we explicit set override/upgrade options
+			$jinstaller->setDatabase($db);
 			$jinstaller->setOverwrite(true);
 			$jinstaller->setUpgrade(true);
 
@@ -443,7 +445,7 @@ class com_flexicontentInstallerScript
 		}
 
 		$app = \Joomla\CMS\Factory::getApplication();
-		$db = \Joomla\CMS\Factory::getDbo();
+		$db = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 		$dbprefix = $app->getCfg('dbprefix');
 		$dbname   = $app->getCfg('db');
 
@@ -1548,7 +1550,7 @@ class com_flexicontentInstallerScript
 		// init vars
 		$error = false;
 		$extensions = array();
-		$db = \Joomla\CMS\Factory::getDbo();
+		$db = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 		$dbprefix = $app->getCfg('dbprefix');
 		$dbname   = $app->getCfg('db');
 
@@ -1828,9 +1830,9 @@ class com_flexicontentInstallerScript
 						{
 							foreach($tmpl_override_files as $file)
 							{
-								if (\Joomla\CMS\Filesystem\File::exists($file))
+								if (\Joomla\Filesystem\File::exists($file))
 								{
-									if (!\Joomla\CMS\Filesystem\File::delete($file))
+									if (!\Joomla\Filesystem\File::delete($file))
 									{
 										echo 'Cannot delete legacy file: ' . $file . '<br />';
 									}
@@ -1857,7 +1859,7 @@ class com_flexicontentInstallerScript
 		static $paramsArr = null;
 		if ($paramsArr !== null) return $paramsArr;
 
-		$db = \Joomla\CMS\Factory::getDbo();
+		$db = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 		$db->setQuery( 'SELECT manifest_cache FROM #__extensions WHERE element = '. $db->quote($name) .' AND type= '. $db->quote($type) );
 		$manifest_cache =  $db->loadResult();
 
@@ -1873,7 +1875,7 @@ class com_flexicontentInstallerScript
 		if ( count($param_array) > 0 )
 		{
 			// read the existing component value(s)
-			$db = \Joomla\CMS\Factory::getDbo();
+			$db = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 			$db->setQuery('SELECT params FROM #__extensions WHERE element = "com_flexicontent"');
 			$params = json_decode( $db->loadResult(), true );
 			// add the new variable(s) to the existing one(s)
@@ -1896,7 +1898,7 @@ class com_flexicontentInstallerScript
 	private function _renameExtensionLegacyParameters($map, $dbtbl_name, $dbcol_name, $record_id)
 	{
 		// Load parameters directly from DB
-		$db = \Joomla\CMS\Factory::getDbo();
+		$db = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 		$query = 'SELECT ' . $dbcol_name
 			. ' FROM #__' . $dbtbl_name . ' '
 			. ' WHERE '
@@ -1951,7 +1953,7 @@ class com_flexicontentInstallerScript
 			$attr_vals_fix = array()  // For an example see groupmarker case
 	)
 	{
-		$db = \Joomla\CMS\Factory::getDbo();
+		$db = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 		
 		$where = array();
 		foreach($match_cols as $col => $val)
@@ -2033,7 +2035,7 @@ class com_flexicontentInstallerScript
 	 */
 	private function _deprecate_field($old_type, $new_type, & $msg, & $n)
 	{
-		$db = \Joomla\CMS\Factory::getDbo();
+		$db = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 
 		$query = 'UPDATE #__flexicontent_fields'
 			.' SET field_type = ' .$db->Quote($new_type)

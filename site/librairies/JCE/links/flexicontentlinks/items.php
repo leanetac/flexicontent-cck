@@ -14,6 +14,7 @@
  * Based on "joomlalinks" found in JCE's core distribution, and flexicontentlinks by Emmanuel Dannan and Ryan Demmer
  */
 defined('_WF_EXT') or die('RESTRICTED');
+use Joomla\Database\DatabaseInterface;
 
 class FlexicontentlinksItems extends \Joomla\CMS\Object\CMSObject {
 
@@ -89,7 +90,7 @@ class FlexicontentlinksItems extends \Joomla\CMS\Object\CMSObject {
 
 		if ($view && $view!='category') return array();
 
-		$db = \Joomla\CMS\Factory::getDbo();
+		$db = \Joomla\CMS\Factory::getContainer()->get(DatabaseInterface::class);
 
 		// Add categories
 		$query	= $db->getQuery(true);
